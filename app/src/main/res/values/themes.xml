@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- ✅ Base Material 3 Theme -->
+    <style name="Base.Theme.ToDo_App_XuHo_IT" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- App brand colors -->
+        <item name="colorPrimary">#4CAF50</item>       <!-- Green -->
+        <item name="colorSecondary">#FFA726</item>     <!-- Orange -->
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnSecondary">#000000</item>
+
+        <!-- Backgrounds -->
+        <item name="android:colorBackground">#F5F5F5</item>
+        <item name="android:textColor">#212121</item>
+
+    </style>
+
+    <!-- App theme entry -->
+    <style name="Theme.ToDo_App_XuHo_IT" parent="Base.Theme.ToDo_App_XuHo_IT" />
+</resources>
