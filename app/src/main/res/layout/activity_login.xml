@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@android:color/white">
+
+    <!-- App Logo/Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ToDo App"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/green_500"
+        android:layout_marginBottom="48dp" />
+
+    <!-- Login Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="@drawable/rounded_card"
+        android:elevation="4dp">
+
+        <!-- Username Field -->
+        <EditText
+            android:id="@+id/edUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Username"
+            android:inputType="text"
+            android:maxLines="1"
+            android:padding="12dp"
+            android:background="@android:color/white"
+            android:textColorHint="@color/green_500" />
+
+        <!-- Password Field -->
+        <EditText
+            android:id="@+id/edPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:padding="12dp"
+            android:background="@android:color/white"
+            android:textColorHint="@color/green_500" />
+
+        <!-- Remember Me Checkbox -->
+        <CheckBox
+            android:id="@+id/cbRememberMe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remember Me"
+            android:textColor="@color/black"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Login Button -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Login"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:background="@color/green_500"
+            android:elevation="4dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

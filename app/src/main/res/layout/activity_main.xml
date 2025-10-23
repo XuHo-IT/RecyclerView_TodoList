@@ -30,20 +30,15 @@
         android:padding="16dp"
         android:background="@android:color/white">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <EditText
+            android:id="@+id/edSearch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Search tasks"
-            app:startIconDrawable="@drawable/ic_search">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            android:inputType="text"
+            android:padding="12dp"
+            android:background="@android:color/white" />
 
         <ImageView
             android:id="@+id/btnFilter"
@@ -124,6 +119,17 @@
             android:layout_marginStart="16dp"
             android:background="@drawable/filter_unselected_background" />
 
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:background="@color/green_500"
+            android:padding="8dp"
+            android:layout_marginStart="16dp" />
+
     </LinearLayout>
 
 
@@ -140,16 +146,17 @@
         tools:listitem="@layout/item_task" />
 
     <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <Button
         android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="#4CAF50"
-        app:tint="@android:color/white"
+        android:text="+"
+        android:textSize="24sp"
+        android:textColor="@android:color/white"
+        android:background="@color/green_500"
         android:contentDescription="Add Task" />
 
 

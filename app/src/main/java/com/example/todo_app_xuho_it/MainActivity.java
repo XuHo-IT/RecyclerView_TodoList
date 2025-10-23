@@ -2,12 +2,16 @@ package com.example.todo_app_xuho_it;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -30,7 +34,6 @@ import com.example.todo_app_xuho_it.Adapter.TaskAdapter;
 import com.example.todo_app_xuho_it.DAO.TaskDAO;
 import com.example.todo_app_xuho_it.Model.Task;
 import com.example.todo_app_xuho_it.Service.TaskNotificationService;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
     private EditText edSearch;
     private ListView lvTask;
     private TextView tvTaskCounter, tvFilterAll, tvFilterHigh, tvFilterMedium, tvFilterLow;
-    private FloatingActionButton fabAdd;
+    private Button fabAdd;
     private AlertDialog taskDialog;
     
     // Data and Services
@@ -58,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
     
     // Constants
     private static final int NOTIFICATION_PERMISSION_CODE = 1001;
+    private static final String PREFS_NAME = "LoginPrefs";
+    private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_USERNAME = "username";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +71,25 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         
-        // Set action bar title
+        // Check if user is logged in
+        if (!isUserLoggedIn()) {
+            navigateToLogin();
+            return;
+        }
+        
+        // Clear temporary login state if it exists (for non-remember me logins)
+        clearTemporaryLoginState();
+        
+        // Get username from intent or SharedPreferences
+        String username = getIntent().getStringExtra("username");
+        if (username == null) {
+            SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            username = sharedPreferences.getString(KEY_USERNAME, "User");
+        }
+        
+        // Set action bar title with welcome message
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("My To-Do List");
+            getSupportActionBar().setTitle("Welcome, " + username + "!");
         }
         
         // Initialize components
@@ -94,27 +116,37 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
     }
 
     private void initGUI() {
-        // Views
-        edSearch = findViewById(R.id.edSearch);
-        lvTask = findViewById(R.id.lvTask);
-        tvTaskCounter = findViewById(R.id.tvTaskCounter);
-        fabAdd = findViewById(R.id.fabAdd);
-        
-        // Filter tabs
-        tvFilterAll = findViewById(R.id.tvFilterAll);
-        tvFilterHigh = findViewById(R.id.tvFilterHigh);
-        tvFilterMedium = findViewById(R.id.tvFilterMedium);
-        tvFilterLow = findViewById(R.id.tvFilterLow);
-        
-        // Initialize adapter
-        taskAdapter = new TaskAdapter(this, filteredTasks);
-        taskAdapter.setOnTaskActionListener(this);
-        lvTask.setAdapter(taskAdapter);
+        try {
+            // Views
+            edSearch = findViewById(R.id.edSearch);
+            lvTask = findViewById(R.id.lvTask);
+            tvTaskCounter = findViewById(R.id.tvTaskCounter);
+            fabAdd = findViewById(R.id.fabAdd);
+            
+            // Filter tabs
+            tvFilterAll = findViewById(R.id.tvFilterAll);
+            tvFilterHigh = findViewById(R.id.tvFilterHigh);
+            tvFilterMedium = findViewById(R.id.tvFilterMedium);
+            tvFilterLow = findViewById(R.id.tvFilterLow);
+            
+            // Initialize adapter
+            taskAdapter = new TaskAdapter(this, filteredTasks);
+            taskAdapter.setOnTaskActionListener(this);
+            lvTask.setAdapter(taskAdapter);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error initializing GUI: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void setupEventListeners() {
         // Floating action button
         fabAdd.setOnClickListener(v -> showTaskDialog(null));
+        
+        // Logout button
+        Button btnLogout = findViewById(R.id.btnLogout);
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> handleLogout());
+        }
         
         // Search functionality
         edSearch.addTextChangedListener(new TextWatcher() {
@@ -398,4 +430,61 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
         loadTasks();
         updateTaskCounter();
     }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_logout) {
+            handleLogout();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    
+    private boolean isUserLoggedIn() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
+    }
+    
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+    
+    private void clearTemporaryLoginState() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isTemporary = sharedPreferences.getBoolean("is_temporary_login", false);
+        if (isTemporary) {
+            // Clear the temporary login state
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.apply();
+        }
+    }
+    
+    private void handleLogout() {
+        new AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Logout", (dialog, which) -> {
+                // Clear login state
+                SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+                
+                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                navigateToLogin();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+    
 }
