@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
         // Set dialog title and fill data if editing
         if (taskToEdit != null) {
             tvDialogTitle.setText("Edit Task");
+            btnDialogSave.setText("Save"); // Change button text to "Save" for editing
             edDialogTitle.setText(taskToEdit.getTitle());
             edDialogContent.setText(taskToEdit.getContent());
             edDialogDate.setText(taskToEdit.getFormattedDate());
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
             }
         } else {
             tvDialogTitle.setText("Add New Task");
+            btnDialogSave.setText("Add"); // Set button text to "Add" for new tasks
             selectedDate = Calendar.getInstance();
             updateDialogDateDisplay(edDialogDate);
             spinnerDialogPriority.setSelection(1); // Default to MEDIUM
@@ -224,6 +226,7 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
         
         // Save button
         btnDialogSave.setOnClickListener(v -> {
+            // Validate data before saving
             if (validateDialogInput(edDialogTitle, edDialogContent)) {
                 String title = edDialogTitle.getText().toString().trim();
                 String content = edDialogContent.getText().toString().trim();
@@ -231,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
                 String priorityString = spinnerDialogPriority.getSelectedItem().toString();
                 
                 Task.Priority priority = Task.Priority.valueOf(priorityString);
-                Task task = new Task(0, title, content, date, priority);
                 
                 if (taskToEdit != null) {
                     // Update existing task
@@ -253,6 +255,9 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
                     }
                 } else {
                     // Add new task
+                    Task task = new Task(0, title, content, date, priority);
+                    task.setDueDate(selectedDate.getTime());
+                    
                     long result = taskDAO.addTask(task);
                     if (result > 0) {
                         Toast.makeText(this, "✅ Task added successfully!", Toast.LENGTH_SHORT).show();
@@ -264,6 +269,9 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
                         Toast.makeText(this, "❌ Failed to add task", Toast.LENGTH_SHORT).show();
                     }
                 }
+            } else {
+                // Show validation error message
+                Toast.makeText(this, "Please fix the errors above", Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -296,13 +304,29 @@ public class MainActivity extends AppCompatActivity implements TaskAdapter.OnTas
     private boolean validateDialogInput(EditText titleField, EditText contentField) {
         boolean isValid = true;
         
+        // Clear previous errors
+        titleField.setError(null);
+        contentField.setError(null);
+        
+        // Validate title
         if (TextUtils.isEmpty(titleField.getText())) {
             titleField.setError("Title is required");
+            titleField.requestFocus();
+            isValid = false;
+        } else if (titleField.getText().toString().trim().length() < 3) {
+            titleField.setError("Title must be at least 3 characters");
+            titleField.requestFocus();
             isValid = false;
         }
         
+        // Validate content
         if (TextUtils.isEmpty(contentField.getText())) {
             contentField.setError("Content is required");
+            if (isValid) contentField.requestFocus();
+            isValid = false;
+        } else if (contentField.getText().toString().trim().length() < 5) {
+            contentField.setError("Content must be at least 5 characters");
+            if (isValid) contentField.requestFocus();
             isValid = false;
         }
         
